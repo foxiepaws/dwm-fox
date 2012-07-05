@@ -5,7 +5,7 @@ include config.mk
 
 SRC = dwm.c
 OBJ = ${SRC:.c=.o}
-
+#LDFLAGS = "-lXft -lX11 -lfreetype -lfontconfig -lXrender -lX11"
 all: options dwm
 
 options:
@@ -26,7 +26,8 @@ config.h:
 
 dwm: ${OBJ}
 	@echo CC -o $@
-	@${CC} -o $@ ${OBJ} ${LDFLAGS}
+	@${CC} -o $@ ${OBJ} ${LDFLAGS} -lXft -lX11 -lfreetype -lfontconfig -lXrender -lX11 -I /usr/include/freetype2
+
 
 clean:
 	@echo cleaning

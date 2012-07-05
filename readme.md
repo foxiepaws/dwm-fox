@@ -8,12 +8,10 @@ This is my new dwm config, it has a few cool features.
   * horizontal layouts + columns
   * a configurable useless gap
   * statusbar on bottom
-
+  * Xft Support! 
 Here is what needs to happen before it is totally finished
 
   * Dvorak layout patch
   * combo key bindings
   * better key bindings for layouts
-  * XFT (for UTF-8 title support) 
-      * The patch for this does not work with other patches so its going to be a manual merge :/
   * ~/.dwmrc file patch (allowing for system wide xinitrc's to not have to be modified for wallpapers and programs we use, e.g. ubuntu and debian.)
