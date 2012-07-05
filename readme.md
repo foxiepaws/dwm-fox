@@ -9,6 +9,7 @@ This is my new dwm config, it has a few cool features.
   * a configurable useless gap
   * statusbar on bottom
   * Xft Support! 
+
 Here is what needs to happen before it is totally finished
 
   * Dvorak layout patch
