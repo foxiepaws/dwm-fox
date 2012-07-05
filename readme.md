@@ -7,7 +7,7 @@ This is my new dwm config, it has a few cool features.
   * Notification Area! you no longer need a trayer.
   * horizontal layouts + columns
   * a configurable useless gap
-
+  * statusbar on bottom
 
 Here is what needs to happen before it is totally finished
 
