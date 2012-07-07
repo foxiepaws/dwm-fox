@@ -1184,8 +1184,8 @@ incnmaster(const Arg *arg) {
 
 void
 initfont(const char *fontstr) {
-
-	if(!(dc.font.xfont = XftFontOpenName(dpy,screen,fontstr))
+	printf("Xlfd: %s\n",fontstr); 
+	if(!(dc.font.xfont = XftFontOpenXlfd(dpy,screen,fontstr))
 	&& !(dc.font.xfont = XftFontOpenName(dpy,screen,"fixed")))
 		die("error, cannot load font: '%s'\n", fontstr);
 
