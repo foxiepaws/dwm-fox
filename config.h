@@ -95,6 +95,13 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+	{ MODKEY|Mod1Mask, XK_1 , setlayout, {.v = &layouts[0] } },
+	{ MODKEY|Mod1Mask, XK_2 , setlayout, {.v = &layouts[1] } },
+	{ MODKEY|Mod1Mask, XK_3 , setlayout, {.v = &layouts[2] } },
+	{ MODKEY|Mod1Mask, XK_4 , setlayout, {.v = &layouts[3] } },
+	{ MODKEY|Mod1Mask, XK_5 , setlayout, {.v = &layouts[4] } },
+	{ MODKEY|Mod1Mask, XK_6 , setlayout, {.v = &layouts[5] } },
+
 };
 
 /* button definitions */
