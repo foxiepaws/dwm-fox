@@ -9,10 +9,10 @@ This is my new dwm config, it has a few cool features.
   * a configurable useless gap
   * statusbar on bottom
   * Xft Support! 
+  * ~/.dwmrc file patch (allowing for system wide xinitrc's to not have to be modified for wallpapers and programs we use, e.g. ubuntu and debian.)
 
 Here is what needs to happen before it is totally finished
 
   * Dvorak layout patch
   * combo key bindings
   * better key bindings for layouts
-  * ~/.dwmrc file patch (allowing for system wide xinitrc's to not have to be modified for wallpapers and programs we use, e.g. ubuntu and debian.)
