@@ -2,12 +2,12 @@
 
 /* appearance */
 static const char font[]            = "Dina-9:Regular";
-static const char normbordercolor[] = "#3f3f3f";
-static const char normbgcolor[]     = "#3f3f3f";
-static const char normfgcolor[]     = "#dcdccc";
-static const char selbordercolor[]  = "#6f6f6f";
-static const char selbgcolor[]      = "#1e2320";
-static const char selfgcolor[]      = "#f0dfaf";
+static const char normbordercolor[] = "#000000";
+static const char normbgcolor[]     = "#262626";
+static const char normfgcolor[]     = "#af8700";
+static const char selbordercolor[]  = "#000000";
+static const char selbgcolor[]      = "#262626";
+static const char selfgcolor[]      = "#d75f00";
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const unsigned int systrayspacing = 2;   /* systray spacing */
