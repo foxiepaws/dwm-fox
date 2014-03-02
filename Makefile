@@ -26,7 +26,7 @@ config.h:
 
 dwm: ${OBJ}
 	@echo CC -o $@
-	@${CC} -o $@ ${OBJ} ${LDFLAGS} -lXft -lX11 -lfreetype -lfontconfig -lXrender -lX11 -I /usr/include/freetype2
+	@${CC} -o $@ ${OBJ} ${LDFLAGS} -lXft -lX11 -lfreetype -lfontconfig -lXrender -lX11 -I /usr/include/freetype2 -I /usr/include/X11
 
 
 clean:
