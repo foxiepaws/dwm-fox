@@ -9,7 +9,6 @@ static const char selbordercolor[]  = "#6f6f6f";
 static const char selbgcolor[]      = "#1e2320";
 static const char selfgcolor[]      = "#f0dfaf";
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
-static const unsigned int gappx     = 6;        /* gap pixel between windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const unsigned int systrayspacing = 2;   /* systray spacing */
 static const Bool showsystray       = True;     /* False means no systray */
