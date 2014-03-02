@@ -1182,11 +1182,12 @@ incnmaster(const Arg *arg) {
 
 void
 initfont(const char *fontstr) {
-	printf("Xlfd: %s\n",fontstr); 
+	printf("fontstr: %s\n",fontstr); 
 	if(!(dc.font.xfont = XftFontOpenXlfd(dpy,screen,fontstr))
-	&& !(dc.font.xfont = XftFontOpenName(dpy,screen,"fixed")))
+      && !(dc.font.xfont = XftFontOpenName(dpy,screen,fontstr))
+	  && !(dc.font.xfont = XftFontOpenName(dpy,screen,"fixed"))) {
 		die("error, cannot load font: '%s'\n", fontstr);
-
+    }
 	dc.font.ascent = dc.font.xfont->ascent;
 	dc.font.descent = dc.font.xfont->descent;
 	dc.font.height = dc.font.ascent + dc.font.descent;
