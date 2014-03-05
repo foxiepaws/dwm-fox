@@ -10,7 +10,9 @@ static const char selbgcolor[]      = "#262626";
 static const char selfgcolor[]      = "#d75f00";
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
+#ifdef WITH_OPACITY
 static const double shade           = 0.6;      /* opacity of unfocused clients */
+#endif 
 static const unsigned int systrayspacing = 2;   /* systray spacing */
 static const Bool showsystray       = True;     /* False means no systray */
 static const Bool showbar           = True;     /* False means no bar */
@@ -19,11 +21,19 @@ static const Bool topbar            = False;     /* False means bottom bar */
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
+#ifdef WITH_OPACITY
 static const Rule rules[] = {
     /* class      instance    title       tags mask     isfloating   monitor   opacity */
     { "Gimp",     NULL,       NULL,       0,            True,        -1,       -1 },
     { "Firefox",  NULL,       NULL,       1 << 8,       False,       -1,       -1 },
 };
+#else
+static const Rule rules[] = {
+    /* class      instance    title       tags mask     isfloating   monitor*/
+    { "Gimp",     NULL,       NULL,       0,            True,        -1  },
+    { "Firefox",  NULL,       NULL,       1 << 8,       False,       -1  },
+};
+#endif
 
 /* layout(s) */
 static const float mfact      = 0.55; /* factor of master area size [0.05..0.95] */

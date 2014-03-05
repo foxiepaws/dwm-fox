@@ -18,6 +18,10 @@ XINERAMALIBS = -L${X11LIB} -lXinerama
 XINERAMAFLAGS = -DXINERAMA
 
 
+# enable transparency.
+DEFINES =  -DWITH_OPACITY
+DEFINES += -DVERSION=\"${VERSION}\"
+
 # Xft
  XFTINCS = -I${X11INC}/freetype2
  XFTLIBS = -L${X11LIB} -lXft
@@ -28,7 +32,7 @@ INCS = -I. -I/usr/include -I${X11INC} ${XFTINCS}
 LIBS = -L/usr/lib -lc -L${X11LIB} -lX11 ${XINERAMALIBS} ${XFTLIBS}
 
 # flags
-CPPFLAGS = -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}
+CPPFLAGS = ${DEFINES} ${XINERAMAFLAGS}
 #CFLAGS = -g -std=c99 -pedantic -Wall -O0 ${INCS} ${CPPFLAGS}
 CFLAGS = -std=c99 -pedantic -Wall -Os ${INCS} ${CPPFLAGS}
 #LDFLAGS = -g ${LIBS}
@@ -39,4 +43,5 @@ LDFLAGS = -s ${LIBS}
 #LDFLAGS = ${LIBS}
 
 # compiler and linker
-CC = cc
+CC = cc -E
+

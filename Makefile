@@ -10,10 +10,10 @@ all: options dwm
 
 options:
 	@echo dwm build options:
+	@echo "DEFINES  = ${DEFINES}"
 	@echo "CFLAGS   = ${CFLAGS}"
 	@echo "LDFLAGS  = ${LDFLAGS}"
 	@echo "CC       = ${CC}"
-
 .c.o:
 	@echo CC $<
 	@${CC} -c ${CFLAGS} $<
