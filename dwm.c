@@ -107,6 +107,7 @@ applyrules(Client *c) {
         && (!r->instance || strstr(instance, r->instance)))
         {
             c->isfloating = r->isfloating;
+            c->opacity = r->opacity;
             c->tags |= r->tags;
             for(m = mons; m && m->num != r->monitor; m = m->next);
             if(m)
@@ -686,6 +687,16 @@ expose(XEvent *e) {
         drawbar(m);
 }
 
+void                                                                                                                                                                                                 
+window_opacity_set(Client *c, double opacity) {                                                                                                                                                      
+   if(opacity >= 0 && opacity <= 1) {                                                                                                                                                                
+       unsigned long real_opacity[] = { opacity * 0xffffffff };                                                                                                                                      
+       XChangeProperty(dpy, c->win, netatom[NetWMWindowOpacity], XA_CARDINAL, 32, PropModeReplace, (unsigned char *)real_opacity, 1);                                                                
+   }                                                                                                                                                                                                 
+   else                                                                                                                                                                                              
+       XDeleteProperty(dpy, c->win, netatom[NetWMWindowOpacity]);                                                                                                                                    
+}                                                                                                                                                                                                    
+
 void
 focus(Client *c) {
     if(!c || !ISVISIBLE(c))
@@ -693,6 +704,10 @@ focus(Client *c) {
     /* was if(selmon->sel) */
     if(selmon->sel && selmon->sel != c)
         unfocus(selmon->sel, False);
+
+    if(selmon->sel && c!=selmon->sel && c && (!root || (selmon->sel->win!=root && c->win!=root)) ) window_opacity_set(selmon->sel, shade); 
+    if(c && c!=selmon->sel && (!root || (c->win!=root)) ) window_opacity_set(c, c->opacity);  
+
     if(c) {
         if(c->mon != selmon)
             selmon = c->mon;
@@ -708,6 +723,7 @@ focus(Client *c) {
         XSetInputFocus(dpy, root, RevertToPointerRoot, CurrentTime);
     selmon->sel = c;
     drawbars();
+    if(c) window_opacity_set(c, c->opacity);    
 }
 
 void
@@ -961,6 +977,7 @@ manage(Window w, XWindowAttributes *wa) {
         die("fatal: could not malloc() %u bytes\n", sizeof(Client));
     c->win = w;
     updatetitle(c);
+    c->opacity=-1;       
     if(XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
         c->mon = t->mon;
         c->tags = t->tags;
@@ -1509,6 +1526,7 @@ setup(void) {
     netatom[NetSystemTrayOP] = XInternAtom(dpy, "_NET_SYSTEM_TRAY_OPCODE", False);
     netatom[NetSystemTrayOrientation] = XInternAtom(dpy, "_NET_SYSTEM_TRAY_ORIENTATION", False);
     netatom[NetWMName] = XInternAtom(dpy, "_NET_WM_NAME", False);
+    netatom[NetWMWindowOpacity] = XInternAtom(dpy, "_NET_WM_WINDOW_OPACITY", False);       
     netatom[NetWMState] = XInternAtom(dpy, "_NET_WM_STATE", False);
     netatom[NetWMFullscreen] = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
     netatom[NetWMWindowType] = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);

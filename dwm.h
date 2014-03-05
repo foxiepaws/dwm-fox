@@ -34,7 +34,7 @@
 enum { CurNormal, CurResize, CurMove, CurLast };        /* cursor */
 enum { ColBorder, ColFG, ColBG, ColLast };              /* color */
 enum { NetSupported, NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation,
-       NetWMName, NetWMState, NetWMFullscreen, NetActiveWindow, NetWMWindowType,
+       NetWMName, NetWMState, NetWMWindowOpacity, NetWMFullscreen, NetActiveWindow, NetWMWindowType,
        NetWMWindowTypeDialog, NetLast }; /* EWMH atoms */
 enum { Manager, Xembed, XembedInfo, XLast }; /* Xembed atoms */
 enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms */
@@ -71,6 +71,7 @@ struct Client {
     Client *snext;
     Monitor *mon;
     Window win;
+    double opacity;
 };
 
 typedef struct {
@@ -127,6 +128,7 @@ typedef struct {
     unsigned int tags;
     Bool isfloating;
     int monitor;
+    double opacity;
 } Rule;
 
 typedef struct Systray   Systray;
@@ -166,6 +168,7 @@ static void drawsquare(Bool filled, Bool empty, Bool invert, XftColor col[ColLas
 static void drawtext(const char *text, XftColor col[ColLast], Bool invert);
 static void enternotify(XEvent *e);
 static void expose(XEvent *e);
+static void window_opacity_set(Client *c, double opacity);    
 static void focus(Client *c);
 static void focusin(XEvent *e);
 static void focusmon(const Arg *arg);
