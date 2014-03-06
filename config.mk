@@ -43,5 +43,5 @@ LDFLAGS = -s ${LIBS}
 #LDFLAGS = ${LIBS}
 
 # compiler and linker
-CC = cc -E
+CC = cc 
 
