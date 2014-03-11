@@ -12,6 +12,7 @@ static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 #ifdef WITH_OPACITY
 static const double shade           = 0.6;      /* opacity of unfocused clients */
+static const double shadebar        = 0.9;      /* opacity of the bar */
 #endif 
 static const unsigned int systrayspacing = 2;   /* systray spacing */
 static const Bool showsystray       = True;     /* False means no systray */

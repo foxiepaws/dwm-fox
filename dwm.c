@@ -690,15 +690,15 @@ expose(XEvent *e) {
 }
 
 #ifdef WITH_OPACITY
-void                                                                                                                                                                                                 
-window_opacity_set(Client *c, double opacity) {                                                                                                                                                      
-   if(opacity >= 0 && opacity <= 1) {                                                                                                                                                                
-       unsigned long real_opacity[] = { opacity * 0xffffffff };                                                                                                                                      
-       XChangeProperty(dpy, c->win, netatom[NetWMWindowOpacity], XA_CARDINAL, 32, PropModeReplace, (unsigned char *)real_opacity, 1);                                                                
-   }                                                                                                                                                                                                 
-   else                                                                                                                                                                                              
-       XDeleteProperty(dpy, c->win, netatom[NetWMWindowOpacity]);                                                                                                                                    
-}                                                                                                                                                                                                    
+void
+window_opacity_set(Client *c, double opacity) {
+   if(opacity >= 0 && opacity <= 1) {
+       unsigned long real_opacity[] = { opacity * 0xffffffff };
+       XChangeProperty(dpy, c->win, netatom[NetWMWindowOpacity], XA_CARDINAL, 32, PropModeReplace, (unsigned char *)real_opacity, 1);
+   }
+   else
+       XDeleteProperty(dpy, c->win, netatom[NetWMWindowOpacity]);
+}
 #endif
 
 void
@@ -710,8 +710,8 @@ focus(Client *c) {
         unfocus(selmon->sel, False);
 
 #ifdef WITH_OPACITY
-    if(selmon->sel && c!=selmon->sel && c && (!root || (selmon->sel->win!=root && c->win!=root)) ) window_opacity_set(selmon->sel, shade); 
-    if(c && c!=selmon->sel && (!root || (c->win!=root)) ) window_opacity_set(c, c->opacity);  
+    if(selmon->sel && c!=selmon->sel && c && (!root || (selmon->sel->win!=root && c->win!=root)) ) window_opacity_set(selmon->sel, shade);
+    if(c && c!=selmon->sel && (!root || (c->win!=root)) ) window_opacity_set(c, c->opacity);
 #endif
 
     if(c) {
@@ -803,7 +803,7 @@ getatomprop(Client *c, Atom prop) {
     return atom;
 }
 
-XftColor 
+XftColor
 getcolor(const char *colstr) {
     XftColor color;
 
@@ -920,15 +920,15 @@ incnmaster(const Arg *arg) {
 
 void
 initfont(const char *fontstr) {
-    printf("fontstr: %s\n",fontstr); 
-    
+    printf("fontstr: %s\n",fontstr);
+
     /* try xlfd firstm then as a fontconfig pattern then fall back on "fixed"  */
     if(!(dc.font.xfont = XftFontOpenXlfd(dpy,screen,fontstr))
     && !(dc.font.xfont = XftFontOpenName(dpy,screen,fontstr))
     && !(dc.font.xfont = XftFontOpenName(dpy,screen,"fixed"))) {
         die("error, cannot load font: '%s'\n", fontstr);
     }
-    
+
     dc.font.ascent = dc.font.xfont->ascent;
     dc.font.descent = dc.font.xfont->descent;
     dc.font.height = dc.font.ascent + dc.font.descent;
@@ -986,7 +986,7 @@ manage(Window w, XWindowAttributes *wa) {
     c->win = w;
     updatetitle(c);
 #ifdef WITH_OPACITY
-    c->opacity=-1;       
+    c->opacity=-1;
 #endif
     if(XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
         c->mon = t->mon;
@@ -1258,7 +1258,7 @@ resizebarwin(Monitor *m) {
 void
 resizeclient(Client *c, int x, int y, int w, int h) {
     XWindowChanges wc;
-    
+
      c->oldx = c->x; c->x = wc.x = x;
      c->oldy = c->y; c->y = wc.y = y;
      c->oldw = c->w; c->w = wc.width = w;
@@ -1537,7 +1537,7 @@ setup(void) {
     netatom[NetSystemTrayOrientation] = XInternAtom(dpy, "_NET_SYSTEM_TRAY_ORIENTATION", False);
     netatom[NetWMName] = XInternAtom(dpy, "_NET_WM_NAME", False);
 #ifdef WITH_OPACITY
-    netatom[NetWMWindowOpacity] = XInternAtom(dpy, "_NET_WM_WINDOW_OPACITY", False);       
+    netatom[NetWMWindowOpacity] = XInternAtom(dpy, "_NET_WM_WINDOW_OPACITY", False);
 #endif
     netatom[NetWMState] = XInternAtom(dpy, "_NET_WM_STATE", False);
     netatom[NetWMFullscreen] = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
@@ -1812,6 +1812,18 @@ updatebars(void) {
         m->barwin = XCreateWindow(dpy, root, m->wx, m->by, w, bh, 0, DefaultDepth(dpy, screen),
                                   CopyFromParent, DefaultVisual(dpy, screen),
                                   CWOverrideRedirect|CWBackPixmap|CWEventMask, &wa);
+
+        #ifdef WITH_OPACITY
+        /* TODO: should 0 be a special case that disables the bar? */
+        if ((shadebar > 0) || (shadebar < 1)) {
+            unsigned long real_opacity[] = { shadebar * 0xffffffff };
+            XChangeProperty(dpy, m->barwin, netatom[NetWMWindowOpacity], XA_CARDINAL, 32, PropModeReplace, (unsigned char *)real_opacity, 1);
+        }
+        else {
+            XDeleteProperty(dpy, m->barwin, netatom[NetWMWindowOpacity]);
+        }
+        #endif
+
         XDefineCursor(dpy, m->barwin, cursor[CurNormal]);
         XMapRaised(dpy, m->barwin);
     }
@@ -2185,10 +2197,10 @@ xerror(Display *dpy, XErrorEvent *ee) {
     || (ee->request_code == X_GrabKey && ee->error_code == BadAccess)
     || (ee->request_code == X_CopyArea && ee->error_code == BadDrawable))
         return 0;
-  
+
     fprintf(stderr, "dwm: fatal error: request code=%d, error code=%d\n", ee->request_code, ee->error_code);
           return xerrorxlib(dpy, ee); /*  may call exit */
-    
+
 }
 
 int
