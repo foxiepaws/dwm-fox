@@ -77,6 +77,7 @@ struct Client {
     Window win;
 #ifdef WITH_OPACITY
     double opacity;
+    Bool manualOpacity; /* don't mess with the opacity */
 #endif
 };
 

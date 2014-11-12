@@ -9,26 +9,27 @@ MANPREFIX = ${PREFIX}/share/man
 
 #X11INC = /usr/X11R6/include
 #X11LIB = /usr/X11R6/lib
+#X11INC = /usr/local/include
+#X11LIB = /usr/local/lib
 
-X11INC = /usr/local/include
-X11LIB = /usr/local/lib
+X11INC = /usr/include/X11
+X11LIB = /usr/lib/X11
 
 # Xinerama
 XINERAMALIBS = -L${X11LIB} -lXinerama
 XINERAMAFLAGS = -DXINERAMA
-
 
 # enable transparency.
 DEFINES =  -DWITH_OPACITY
 DEFINES += -DVERSION=\"${VERSION}\"
 
 # Xft
- XFTINCS = -I${X11INC}/freetype2
- XFTLIBS = -L${X11LIB} -lXft
+XFTINCS = -I${X11INC}/freetype2 -I/usr/include/freetype2
+XFTLIBS = -L${X11LIB} -lXft
 
 
 #includes and libs
-INCS = -I. -I/usr/include -I${X11INC} ${XFTINCS}
+INCS = -I. -I/usr/include -I${X11INC} ${XFTINCS} 
 LIBS = -L/usr/lib -lc -L${X11LIB} -lX11 ${XINERAMALIBS} ${XFTLIBS}
 
 # flags

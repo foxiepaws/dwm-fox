@@ -1,23 +1,48 @@
 /* See LICENSE file for copyright and license details. */
 
-/* appearance */
-static const char font[]            = "Dina-9:Regular";
+/*+++++++++++
+ * appearance 
+ */
+
+/* Colours */
 static const char normbordercolor[] = "#000000";
 static const char normbgcolor[]     = "#262626";
 static const char normfgcolor[]     = "#af8700";
 static const char selbordercolor[]  = "#000000";
 static const char selbgcolor[]      = "#262626";
 static const char selfgcolor[]      = "#d75f00";
+
+/* font */
+/*  #ifdef WITH_XFT */
+static const char font[]            = "Dina-9:Regular";
+/*  #else
+static const char font[]            = "-*-terminus-medium-r-*-*-16-*-*-*-*-*-*-";
+#endif
+*/
+/* sizes */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
+
+/* opacity settings */
 #ifdef WITH_OPACITY
 static const double shade           = 0.6;      /* opacity of unfocused clients */
 static const double shadebar        = 0.9;      /* opacity of the bar */
 #endif 
+
+/* systray settings */
+/* #ifdef WITH_SYSTRAY */
 static const unsigned int systrayspacing = 2;   /* systray spacing */
 static const Bool showsystray       = True;     /* False means no systray */
+/* #endif */
+
+/* how to show the bar. */
 static const Bool showbar           = True;     /* False means no bar */
 static const Bool topbar            = False;     /* False means bottom bar */
+
+/*--------------
+ * end apperance 
+ */
+
 
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
@@ -43,6 +68,7 @@ static const Bool resizehints = True; /* True means respect size hints in tiled 
 
 #include "bstack.c"
 #include "bstackhoriz.c"
+
 static const Layout layouts[] = {
     /* symbol     arrange function */
     { "[]=",      tile },    /* first entry is default */
@@ -65,7 +91,8 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *dmenucmd[] = { "dmenu_run", "-b", "-p", "run", "-fn", font, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
+static const char *dmenucmd[]
+= { "dmenu_run", "-b", "-p", "run", "-fn", font, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
 static const char *termcmd[]  = { "terminator", NULL };
 static Key keys[] = {
     /* modifier                     key        function        argument */
