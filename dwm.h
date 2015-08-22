@@ -87,12 +87,26 @@ typedef struct {
     XftColor sel[ColLast];
     Drawable drawable;
     GC gc;
+#ifdef WITH_PANGO
+    struct {
+        XftColor norm[ColLast];
+        XftColor sel[ColLast];
+        XftDraw *drawable;
+    } xft;
+    struct {
+        int ascent;
+        int descent;
+        int height;
+        PangoLayout *layout;
+    } font;
+#else
     struct {
         int ascent;
         int descent;
         int height;
         XftFont *xfont;
     } font;
+#endif
 } DC; /* draw context */
 
 typedef struct {
@@ -186,7 +200,11 @@ static void focusmon(const Arg *arg);
 static void focusstack(const Arg *arg);
 static Atom getatomprop(Client *c, Atom prop);
 //static unsigned long getcolor(const char *colstr);
+#ifdef WITH_PANGO
+static XftColor getcolor(const char *colstr, XftColor *color);
+#else
 static XftColor getcolor(const char *colstr);
+#endif
 static Bool getrootptr(int *x, int *y);
 static long getstate(Window w);
 static unsigned int getsystraywidth();
@@ -268,7 +286,11 @@ static void comboview(const Arg *arg);
 static Systray *systray = NULL;
 static unsigned long systrayorientation = _NET_SYSTEM_TRAY_ORIENTATION_HORZ;
 static const char broken[] = "broken";
+#ifdef WITH_PANGO
+static char stext[512];
+#else
 static char stext[256];
+#endif
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh, blw = 0;      /* bar geometry */

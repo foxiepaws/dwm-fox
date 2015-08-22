@@ -6,27 +6,25 @@
 
 /* Colours */
 static const char normbordercolor[] = "#000000";
-static const char normbgcolor[]     = "#262626";
-static const char normfgcolor[]     = "#af8700";
+static const char normbgcolor[]     = "#222222";
+static const char normfgcolor[]     = "#aaaaaa";
 static const char selbordercolor[]  = "#000000";
-static const char selbgcolor[]      = "#262626";
-static const char selfgcolor[]      = "#d75f00";
+static const char selbgcolor[]      = "#535d6c";
+static const char selfgcolor[]      = "#ffffff";
 
 /* font */
-/*  #ifdef WITH_XFT */
-static const char font[]            = "Dina-9:Regular";
-/*  #else
-static const char font[]            = "-*-terminus-medium-r-*-*-16-*-*-*-*-*-*-";
+static const char font[]            = "Dina 9";
+#ifdef WITH_PANGO
+static const Bool statusmarkup = True; /* True means use pango markup */
 #endif
-*/
 /* sizes */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
-static const unsigned int snap      = 32;       /* snap pixel */
+static const unsigned int snap      = 1;       /* snap pixel */
 
 /* opacity settings */
 #ifdef WITH_OPACITY
-static const double shade           = 0.6;      /* opacity of unfocused clients */
-static const double shadebar        = 0.9;      /* opacity of the bar */
+static const double shade           = 1.0;      /* opacity of unfocused clients */
+static const double shadebar        = 0.8;      /* opacity of the bar */
 #endif 
 
 /* systray settings */
@@ -64,7 +62,7 @@ static const Rule rules[] = {
 /* layout(s) */
 static const float mfact      = 0.55; /* factor of master area size [0.05..0.95] */
 static const int nmaster      = 1;    /* number of clients in master area */
-static const Bool resizehints = True; /* True means respect size hints in tiled resizals */
+static const Bool resizehints = False; /* True means respect size hints in tiled resizals */
 
 #include "bstack.c"
 #include "bstackhoriz.c"
@@ -93,7 +91,7 @@ static const Layout layouts[] = {
 /* commands */
 static const char *dmenucmd[]
 = { "dmenu_run", "-b", "-p", "run", "-fn", font, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
-static const char *termcmd[]  = { "terminator", NULL };
+static const char *termcmd[]  = { "x-terminal", NULL };
 static Key keys[] = {
     /* modifier                     key        function        argument */
     { MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
@@ -101,8 +99,8 @@ static Key keys[] = {
     { MODKEY,                       XK_b,      togglebar,      {0} },
     { MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
     { MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
-    //{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-    //{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+    { MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
+    { MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
     { MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
     { MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
     { MODKEY,                       XK_Return, zoom,           {0} },

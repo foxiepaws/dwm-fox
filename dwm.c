@@ -40,6 +40,10 @@
 #include <X11/extensions/Xinerama.h>
 #endif /* XINERAMA */
 #include <X11/Xft/Xft.h>
+#ifdef WITH_PANGO
+#include <pango/pango.h>
+#include <pango/pangoxft.h>
+#endif
 
 
 /* all of the mess that was previously here. */
@@ -277,7 +281,10 @@ cleanup(void) {
     Arg a = {.ui = ~0};
     Layout foo = { "", NULL };
     Monitor *m;
-
+    #ifdef WITH_PANGO
+    int i;
+    #endif
+    
     view(&a);
     selmon->lt[selmon->sellt] = &foo;
     for(m = mons; m; m = m->next)
@@ -285,6 +292,14 @@ cleanup(void) {
             unmanage(m->stack, False);
     XUngrabKey(dpy, AnyKey, AnyModifier, root);
     XFreePixmap(dpy, dc.drawable);
+    #ifdef WITH_PANGO
+    for(i = ColBorder; i < ColLast; i++) {
+        XftColorFree(dpy,DefaultVisual(dpy,screen),DefaultColormap(dpy,screen),dc.xft.norm + i);
+        XftColorFree(dpy,DefaultVisual(dpy,screen),DefaultColormap(dpy,screen),dc.xft.sel + i);
+    }
+    XftDrawDestroy(dc.xft.drawable);
+    g_object_unref(dc.font.layout);
+    #endif 
     XFreeGC(dpy, dc.gc);
     XFreeCursor(dpy, cursor[CurNormal]);
     XFreeCursor(dpy, cursor[CurResize]);
@@ -419,6 +434,9 @@ configurenotify(XEvent *e) {
             if(dc.drawable != 0)
                 XFreePixmap(dpy, dc.drawable);
             dc.drawable = XCreatePixmap(dpy, root, sw, bh, DefaultDepth(dpy, screen));
+            #ifdef WITH_PANGO
+            XftDrawChange(dc.xft.drawable, dc.drawable);
+            #endif
             updatebars();
             for(m = mons; m; m = m->next)
                 resizebarwin(m);
@@ -635,7 +653,11 @@ drawsquare(Bool filled, Bool empty, Bool invert, XftColor col[ColLast]) {
 
 void
 drawtext(const char *text, XftColor col[ColLast], Bool invert) {
+    #ifdef WITH_PANGO
+    char buf[512];
+    #else
     char buf[256];
+    #endif
     int i, x, y, h, len, olen;
     XftDraw *d;
 
@@ -645,20 +667,38 @@ drawtext(const char *text, XftColor col[ColLast], Bool invert) {
         return;
     olen = strlen(text);
     h = dc.font.ascent + dc.font.descent;
+    #ifdef WITH_PANGO
+    y = dc.y + (dc.h / 2) - (h / 2);
+    #else 
     y = dc.y + (dc.h / 2) - (h / 2) + dc.font.ascent;
+    #endif 
     x = dc.x + (h / 2);
-    /* shorten text if necessary */
+    /* shorten text if necessary (this could break pango.*/
     for(len = MIN(olen, sizeof buf); len && textnw(text, len) > dc.w - h; len--);
     if(!len)
         return;
     memcpy(buf, text, len);
     if(len < olen)
         for(i = len; i && i > len - 3; buf[--i] = '.');
+#ifdef WITH_PANGO
+    if (text == stext && statusmarkup)
+        pango_layout_set_markup(dc.font.layout, buf, len);
+    else
+        pango_layout_set_text(dc.font.layout,buf,len);
 
+    pango_xft_render_layout(dc.xft.drawable,
+                            (col == dc.norm ? dc.xft.norm : dc.xft.sel) + (invert ? ColBG : ColFG),
+                            dc.font.layout,
+                            x * PANGO_SCALE,
+                            y * PANGO_SCALE);
+    if (text == stext && statusmarkup) /* clear markup attributes */
+        pango_layout_set_attributes(dc.font.layout, NULL);
+#else 
     d = XftDrawCreate(dpy, dc.drawable, DefaultVisual(dpy, screen), DefaultColormap(dpy,screen));
 
     XftDrawStringUtf8(d, &col[invert ? ColBG : ColFG], dc.font.xfont, x, y, (XftChar8 *) buf, len);
     XftDrawDestroy(d);
+#endif
 }
 
 void
@@ -802,7 +842,17 @@ getatomprop(Client *c, Atom prop) {
     }
     return atom;
 }
+#ifdef WITH_PANGO
+XftColor
+getcolor(const char *colstr, XftColor *color) {
+    Colormap cmap = DefaultColormap (dpy, screen);
+    Visual *vis = DefaultVisual(dpy, screen);
+    if (!XftColorAllocName(dpy,vis,cmap,colstr,color))
+        die("error, cannot allocate color '%s'\n", colstr);
 
+    return *color;
+}
+#else
 XftColor
 getcolor(const char *colstr) {
     XftColor color;
@@ -812,6 +862,8 @@ getcolor(const char *colstr) {
 
     return color;
 }
+#endif 
+
 
 Bool
 getrootptr(int *x, int *y) {
@@ -920,6 +972,26 @@ incnmaster(const Arg *arg) {
 
 void
 initfont(const char *fontstr) {
+#ifdef WITH_PANGO
+    PangoFontMap *fontmap;
+    PangoContext *context;
+    PangoFontDescription *desc;
+    PangoFontMetrics *metrics;
+
+    fontmap = pango_xft_get_font_map(dpy,screen);
+    context = pango_font_map_create_context(fontmap);
+    desc = pango_font_description_from_string(fontstr);
+    dc.font.layout = pango_layout_new(context);
+    pango_layout_set_font_description(dc.font.layout, desc);
+
+    metrics = pango_context_get_metrics(context, desc, NULL);
+    dc.font.ascent = pango_font_metrics_get_ascent(metrics) / PANGO_SCALE;
+    dc.font.descent = pango_font_metrics_get_descent(metrics) / PANGO_SCALE;
+    dc.font.height = dc.font.ascent + dc.font.descent;
+
+    pango_font_metrics_unref(metrics);
+    g_object_unref(context);
+#else
     printf("fontstr: %s\n",fontstr);
 
     /* try xlfd firstm then as a fontconfig pattern then fall back on "fixed"  */
@@ -932,6 +1004,7 @@ initfont(const char *fontstr) {
     dc.font.ascent = dc.font.xfont->ascent;
     dc.font.descent = dc.font.xfont->descent;
     dc.font.height = dc.font.ascent + dc.font.descent;
+#endif
 }
 
 #ifdef XINERAMA
@@ -1551,13 +1624,25 @@ setup(void) {
     cursor[CurResize] = XCreateFontCursor(dpy, XC_sizing);
     cursor[CurMove] = XCreateFontCursor(dpy, XC_fleur);
     /* init appearance */
+#ifdef WITH_PANGO
+    dc.norm[ColBorder] = getcolor(normbordercolor, dc.xft.norm + ColBorder);
+    dc.norm[ColBG] = getcolor(normbgcolor, dc.xft.norm + ColBG);
+    dc.norm[ColFG] = getcolor(normfgcolor, dc.xft.norm + ColFG);
+    dc.sel[ColBorder] = getcolor(selbordercolor, dc.xft.sel + ColBorder);
+    dc.sel[ColBG] = getcolor(selbgcolor, dc.xft.sel + ColBG);
+    dc.sel[ColFG] = getcolor(selfgcolor, dc.xft.sel + ColFG);
+#else 
     dc.norm[ColBorder] = getcolor(normbordercolor);
     dc.norm[ColBG] = getcolor(normbgcolor);
     dc.norm[ColFG] = getcolor(normfgcolor);
     dc.sel[ColBorder] = getcolor(selbordercolor);
     dc.sel[ColBG] = getcolor(selbgcolor);
     dc.sel[ColFG] = getcolor(selfgcolor);
+#endif
     dc.drawable = XCreatePixmap(dpy, root, DisplayWidth(dpy, screen), bh, DefaultDepth(dpy, screen));
+#ifdef WITH_PANGO
+    dc.xft.drawable = XftDrawCreate(dpy,dc.drawable, DefaultVisual(dpy,screen), DefaultColormap(dpy,screen));
+#endif
     dc.gc = XCreateGC(dpy, root, 0, NULL);
     XSetLineAttributes(dpy, dc.gc, 1, LineSolid, CapButt, JoinMiter);
     //if(!dc.font.set)
@@ -1634,9 +1719,24 @@ tagmon(const Arg *arg) {
 
 int
 textnw(const char *text, unsigned int len) {
+#ifdef WITH_PANGO
+    PangoRectangle r;
+    if(text == stext && statusmarkup)
+        pango_layout_set_markup(dc.font.layout, text, len);
+    else
+        pango_layout_set_text(dc.font.layout, text, len);
+
+    pango_layout_get_extents(dc.font.layout, 0, &r);
+
+    if (text == stext && statusmarkup)
+        pango_layout_set_attributes(dc.font.layout, NULL);
+
+    return r.width / PANGO_SCALE;
+#else
     XGlyphInfo ext;
     XftTextExtentsUtf8(dpy, dc.font.xfont, (XftChar8 *) text, len, &ext);
     return ext.xOff;
+#endif
 }
 
 void
@@ -2118,7 +2218,7 @@ void
 updatewmhints(Client *c) {
     XWMHints *wmh;
 
-    if((wmh = XGetWMHints(dpy, c->win))) {
+    if(wmh = XGetWMHints(dpy, c->win)) {
         if(c == selmon->sel && wmh->flags & XUrgencyHint) {
             wmh->flags &= ~XUrgencyHint;
             XSetWMHints(dpy, c->win, wmh);
@@ -2187,7 +2287,7 @@ wintosystrayicon(Window w) {
  * default error handler, which may call exit.  */
 int
 xerror(Display *dpy, XErrorEvent *ee) {
-    if(ee->error_code == BadWindow
+    if (ee->error_code == BadWindow
     || (ee->request_code == X_SetInputFocus && ee->error_code == BadMatch)
     || (ee->request_code == X_PolyText8 && ee->error_code == BadDrawable)
     || (ee->request_code == X_PolyFillRectangle && ee->error_code == BadDrawable)
@@ -2229,6 +2329,23 @@ zoom(const Arg *arg) {
     pop(c);
 }
 
+void
+initfile() {
+    char *dwmrcc = malloc((strlen(getenv("HOME"))+8) * sizeof(char));
+    sprintf(dwmrcc,"%s/.dwmrc",getenv("HOME"));
+    /* check that file exists */
+    if (!(access (dwmrcc, F_OK|R_OK|X_OK))) {
+        /* the file didn't exist or isn't executable */
+        free(dwmrcc);
+        return;
+    }
+    
+    char *dwmrc[] = {dwmrcc, ""};
+    const Arg dwmd = {.v = dwmrc};
+    spawn(&dwmd);
+    free(dwmrcc);
+}
+
 int
 main(int argc, char *argv[]) {
     if(argc == 2 && !strcmp("-v", argv[1]))
@@ -2240,16 +2357,8 @@ main(int argc, char *argv[]) {
     if(!(dpy = XOpenDisplay(NULL)))
         die("dwm: cannot open display\n");
     checkotherwm();
+    initfile();
     setup();
-    {
-        /* init file */
-        char *dwmrcc = malloc((strlen(getenv("HOME"))+8) * sizeof(char));
-        sprintf(dwmrcc,"%s/.dwmrc",getenv("HOME"));
-        char *dwmrc[] = {dwmrcc, ""};
-        const Arg dwmd = {.v = dwmrc};
-        spawn(&dwmd);
-        free(dwmrcc);
-    }
     scan();
     run();
     cleanup();
