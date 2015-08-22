@@ -1,1 +1,88 @@
-/home/allie/org/dwm.org
+* dwm-fox
+
+dwm-fox is my own little fork/configuration of dwm. It is similar to
+the idea of dwm-sprinkles, only is customised for me. It brings in
+several changes like XFT, nmaster, a systray, different layouts,
+compositing/opacity, and a colour scheme I actually like. Whilst it
+never actually reached the level I wanted it to, I do still use this
+every single day as my default window manager.
+
+** Screenshots
+#+attr_html: :width 500px
+[[./img/dwm-fox-screeny1.png]]
+
+** Configuration
+Configuring dwm (and by extension, dwm-fox) is easy. Just open up your
+favourite text editor and modify config.h. You'll need to understand C
+a little to customise dwm properly. This is by design, but for the
+sake of practicing documentation, I'll write a few examples of how you
+can change it.
+
+*** Changing the colours
+#+BEGIN_SRC C
+static const char normbordercolor[] = "#";
+static const char normbgcolor[]     = "#";
+static const char normfgcolor[]     = "#";
+static const char selbordercolor[]  = "#";
+static const char selbgcolor[]      = "#";
+static const char selfgcolor[]      = "#";
+#+END_SRC
+
+*** Turning off the systray
+#+BEGIN_SRC C
+static const Bool showsystray       = False;     /* False means no systray */
+#+END_SRC
+
+*** Changing the name of the tags
+edit tags[] with the name you want, really easy. 
+#+BEGIN_SRC C
+/* very bad example */
+static const char *tags[] = { "IRC", "CODE", "MUSIC", "...", "...", "...", "...", "...", "WWW" };
+#+END_SRC 
+
+*** Applying changes
+To apply the changes, you need to recompile dwm.
+#+BEGIN_SRC shell
+$EDITOR config.mk # modify this so your prefix and option choices are correct.
+make
+make install # run this AFTER quitting dwm.
+#+END_SRC
+
+
+** Key Bindings
+dwm uses a modifier key, dwm-fox by default sets this key to Super.
+*** Bindings
+- key :: action
+- p :: dmenu
+- Shift + Enter :: Spawn `x-terminal`
+- b :: toggle statusbar
+- j :: focus on previous client 
+- k :: focus on next client
+- i :: increase number of windows in master area
+- d :: decrease number of windows in master area
+- h :: decrease space for master (mfact)
+- l :: increase space for master (mfact)
+- Enter :: "Zoom" (move to master)
+- Tab :: switch workspaces
+- C :: Kill Client
+- t :: set layout to tile 
+- f :: set layout to floating
+- m :: set layout to monocle
+- y :: horizontal tiling 
+- u :: horizontal stacking
+- c :: columns *broken*
+- Space :: set layout
+- Shift + Space :: toggle floating
+- 0 :: view all clients
+- Shift + 0 :: set client to display on all tags
+- , :: Broken
+- . :: Broken
+- Shift + , :: Broken 
+- Shift + . :: Broken
+- Q :: Kill dwm
+- [1-9] :: switch tag
+- Shift + [1-9] :: Move to tag 
+- Ctrl + [1-9] :: Toggle on tag
+- Shift + Control + [1-9] :: Toggle and move to tag
+- Alt + [1-6] :: switch layout
+
